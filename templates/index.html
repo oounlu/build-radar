@@ -11,6 +11,8 @@
 
 </head>
 <body>
+
+
   <div class="hero min-h-screen bg-base-200">
     <div class="hero-content flex flex-col lg:flex-row items-start lg:space-x-8 text-center lg:text-left">
       <form class="card shrink-0 w-full shadow-2xl bg-base-100 max-w-lg card-body form-control max-w-[100vw]" method="post">
@@ -23,13 +25,16 @@ Like the goal, the problem and the solution" required></textarea>
 
         <div id="features-container">
           <div class="feature-input">
-            <input type="text" placeholder="Feature" class="input input-bordered w-full" style="width: 400px;" required>
+            <input type="text" placeholder="Feature" class="input input-bordered w-full" required>
             <div class="label">
               <span class="label-text-alt"><button type="button" class="add-feature">Add</button></span>
               <span class="label-text-alt"><button type="button" class="delete-feature" disabled>Delete</button></span>
             </div>
           </div>
         </div>
+
+        <!-- Hidden field to store the features -->
+        <input type="hidden" name="features" id="features" value="">
 
         <div class="divider">Feature Number</div>
 
@@ -85,6 +90,17 @@ Like the goal, the problem and the solution" required></textarea>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       const featuresContainer = document.getElementById('features-container');
+      const featuresInput = document.getElementById('features');
+      const form = document.querySelector('form');
+
+      // Function to update the hidden input field with the features
+      function updateFeaturesInput() {
+        const features = [];
+        document.querySelectorAll('.feature-input input').forEach(input => {
+          features.push(input.value);
+        });
+        featuresInput.value = JSON.stringify(features);
+      }
 
       // Function to add a new feature input
       function addFeatureInput() {
@@ -98,12 +114,14 @@ Like the goal, the problem and the solution" required></textarea>
           </div>
         `;
         featuresContainer.appendChild(newFeatureDiv);
+        updateFeaturesInput();
       }
 
       // Function to delete a feature input
       function deleteFeatureInput(event) {
         const featureDiv = event.target.closest('.feature-input');
         featuresContainer.removeChild(featureDiv);
+        updateFeaturesInput();
       }
 
       // Event delegation for add and delete buttons
@@ -114,6 +132,14 @@ Like the goal, the problem and the solution" required></textarea>
           deleteFeatureInput(event);
         }
       });
+
+      // Update the hidden input field before the form is submitted
+      form.addEventListener('submit', function(event) {
+        updateFeaturesInput();
+      });
+
+      // Update the hidden input field when the page loads
+      updateFeaturesInput();
     });
   </script>
 

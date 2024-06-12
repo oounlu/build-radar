@@ -92,7 +92,7 @@ def generate():
 
     if request.method == "POST":
         description = request.form.get("description")
-        features = json.dumps() # TODO: fetch the features dynamically
+        features = json.dumps(request.form.get('features'))
         output = generate_feature_request(description, features, request.form.get("feature-number"))
 
         return render_template("index.html", output=output, success=success)

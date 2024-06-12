@@ -10,7 +10,7 @@ def generate_feature_request(description, features, feature_number):
     print(features)
 
     response = client.chat.completions.create(
-        model="gpt-4o",
+        model="gpt-3.5-turbo",
         messages=[{"role": "user", "content": system_feature_request.replace("{{description}}", description).replace("{{feature_number}}", feature_number).replace("{{features}}", features)}],
     )
 

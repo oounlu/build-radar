@@ -6,6 +6,9 @@ client = Client()
 
 
 def generate_feature_request(description, features, feature_number):
+    print("[BA] generate_feature_request\n[BA] description: " + description + "\n[BA] feature_number: " + feature_number + "\n[BA] features: ")
+    print(features)
+
     response = client.chat.completions.create(
         model="gpt-4o",
         messages=[{"role": "user", "content": system_feature_request.replace("{{description}}", description).replace("{{feature_number}}", feature_number).replace("{{features}}", features)}],

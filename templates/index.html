@@ -21,9 +21,15 @@ Like the goal, the problem and the solution" required></textarea>
 
         <div class="divider">Features</div>
 
-        <input id="feature-1" name="feature-1" type="text" placeholder="Feature 1 here" class="input input-bordered w-full" required>
-        <input id="feature-2" name="feature-2" type="text" placeholder="Feature 2 here" class="input input-bordered w-full mt-3" required>
-        <input id="feature-3" name="feature-3" type="text" placeholder="Feature 3 here" class="input input-bordered w-full mt-3" required>
+        <div id="features-container">
+          <div class="feature-input">
+            <input type="text" placeholder="Feature" class="input input-bordered w-full" style="width: 400px;" required>
+            <div class="label">
+              <span class="label-text-alt"><button type="button" class="add-feature">Add</button></span>
+              <span class="label-text-alt"><button type="button" class="delete-feature" disabled>Delete</button></span>
+            </div>
+          </div>
+        </div>
 
         <div class="divider">Feature Number</div>
 
@@ -52,7 +58,7 @@ Like the goal, the problem and the solution" required></textarea>
       <div class="divider lg:divider-horizontal"></div>
 
       <div class="card flex-none shadow-2xl bg-base-100 w-full max-w-[100vw] card-body mt-8 ">
-        <table class="table table-zebra">
+        <table class="table table-zebra" id="features-list">
           <thead>
             <tr>
               <th></th>
@@ -74,6 +80,42 @@ Like the goal, the problem and the solution" required></textarea>
       {% endif %}
     </div>
   </div>
+
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const featuresContainer = document.getElementById('features-container');
+
+      // Function to add a new feature input
+      function addFeatureInput() {
+        const newFeatureDiv = document.createElement('div');
+        newFeatureDiv.classList.add('feature-input');
+        newFeatureDiv.innerHTML = `
+          <input type="text" placeholder="Feature" class="input input-bordered w-full" required>
+          <div class="label">
+            <span class="label-text-alt"><button type="button" class="add-feature">Add</button></span>
+            <span class="label-text-alt"><button type="button" class="delete-feature">Delete</button></span>
+          </div>
+        `;
+        featuresContainer.appendChild(newFeatureDiv);
+      }
+
+      // Function to delete a feature input
+      function deleteFeatureInput(event) {
+        const featureDiv = event.target.closest('.feature-input');
+        featuresContainer.removeChild(featureDiv);
+      }
+
+      // Event delegation for add and delete buttons
+      featuresContainer.addEventListener('click', function(event) {
+        if (event.target.classList.contains('add-feature')) {
+          addFeatureInput();
+        } else if (event.target.classList.contains('delete-feature')) {
+          deleteFeatureInput(event);
+        }
+      });
+    });
+  </script>
 
 
 </body>

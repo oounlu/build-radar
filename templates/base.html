@@ -19,8 +19,15 @@
     </div>
     <div class="flex-none">
       <ul class="menu menu-horizontal px-1">
-        <li><a href="/login">Login</a></li>
-        <li><a href="/signup">Signup</a></li>
+
+        {% if session.get('uid') %}
+          <li><a href="/index">Generate</a></li>
+          <li><a href="/logout">Logout</a></li>
+        {% else %}
+          <li><a href="/login">Login</a></li>
+          <li><a href="/signup">Signup</a></li>
+        {% endif %}
+
         <li>
           <label class="swap swap-rotate">
             <!-- this hidden checkbox controls the state -->

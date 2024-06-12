@@ -16,7 +16,7 @@ DOMAIN_URL = os.environ["DOMAIN_URL"]
 
 
 
-### STRIPE
+### STRIPE KEYS
 stripe_keys = {
     "secret_key": os.environ["STRIPE_SECRET_KEY"],
     "publishable_key": os.environ["STRIPE_PUBLISHABLE_KEY"],
@@ -25,6 +25,110 @@ stripe_keys = {
 stripe.api_key = stripe_keys["secret_key"]
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### ROUTES
+@app.route("/")
+def landing():
+    try:
+        return render_template("landing.html", signed_in=bool(session.get("uid")), payed=db.check_user_payment(session["uid"]))
+    except:
+        return render_template("landing.html", signed_in=False, payed=False)
+
+ 
+@app.route("/login", methods=["POST", "GET"])
+def login():
+    if request.method == "POST":
+        email = request.form.get("email")
+        password = request.form.get("password")
+        try:
+            uid = db.sign_in(email, password)
+            session["uid"] = uid
+            return redirect("/")
+        except:
+            return redirect("/login?error=true")
+
+    return render_template("login.html")
+
+
+@app.route("/signup", methods=["POST", "GET"])
+def signup():
+    if request.method == "POST":
+        email = request.form.get("email")
+        password = request.form.get("password")
+
+        try:
+            uid = db.sign_up(email, password)
+            session["uid"] = uid
+            return redirect("/")
+        except Exception as e:
+            print(e)
+            return redirect("/signup?error=true")
+
+    return render_template("signup.html")
+
+
+@app.route("/index", methods=["GET", "POST"])
+def generate():
+    has_paid = db.check_user_payment(session["uid"])
+
+    if not has_paid:
+        return redirect("/")
+
+    success = request.args.get("success", "none")
+
+    if request.method == "POST":
+        description = request.form.get("description")
+        features = json.dumps() # TODO: fetch the features dynamically
+        output = generate_feature_request(description, features, request.form.get("feature-number"))
+
+        return render_template("index.html", output=output, success=success)
+
+    return render_template("index.html", success="true")
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### STRIPE
 @app.route("/config")
 def get_publishable_key():
     stripe_config = {"publicKey": stripe_keys["publishable_key"]}
@@ -37,6 +141,7 @@ def create_checkout_session():
 
     try:
         checkout_session = stripe.checkout.Session.create(
+            client_reference_id=session["uid"],
             success_url=request.host_url + "success?session_id={CHECKOUT_SESSION_ID}",
             cancel_url=request.referrer,
             payment_method_types=["card"],
@@ -78,58 +183,13 @@ def stripe_webhook():
 
     # Handle the checkout.session.completed event
     if event["type"] == "checkout.session.completed":
-        user_id = event["id"]
-        db.create_user(user_id, True)
-        # TODO
+        session_with_user = event["data"]["object"]
+        user_id = session_with_user.get("client_reference_id")
+        db.update_user(user_id, True)
 
     return "Success", 200
 
 
-
-
-
-
-
-### STRIPE RESPONSE
 @app.route("/success")
 def success():
     return redirect("/?success=true")
-
-@app.route("/cancel")
-def cancel():
-    return redirect("/?success=false")
-
-
-
-
-
-
-
-
-
-### ROUTES
-@app.route("/")
-def landing():
-    return render_template("landing.html")
-
-
-@app.route("/login", methods=["POST", "GET"])
-def login():
-    return render_template("login.html")
-
-
-@app.route("/index", methods=["GET", "POST"])
-def generate():
-    has_paid = db.check_user_payment_status() # TODO
-    print(has_paid)
-
-    success = request.args.get("success", "none")
-
-    if request.method == "POST":
-        description = request.form.get("description")
-        features = json.dumps([request.form.get("feature-1"), request.form.get("feature-2"), request.form.get("feature-3")], indent=4)
-        output = generate_feature_request(description, features, request.form.get("feature-number"))
-
-        return render_template("index.html", output=output, success=success)
-
-    return render_template("index.html", success="true")

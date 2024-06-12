@@ -2,4 +2,5 @@ flask
 gunicorn
 g4f[all]
 stripe
-supabase
+firebase_admin
+pyrebase

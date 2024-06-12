@@ -1,3 +1,4 @@
+setuptools
 flask
 gunicorn
 g4f[all]

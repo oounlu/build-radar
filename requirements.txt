@@ -4,4 +4,3 @@ gunicorn
 g4f[all]
 stripe
 firebase_admin
-pyrebase

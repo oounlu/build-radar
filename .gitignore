@@ -1,4 +1,3 @@
 __pycache__/
 .env
-key_db.py
-key_db.json
+key_db.*

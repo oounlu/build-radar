@@ -25,7 +25,10 @@ Like the goal, the problem and the solution" required></textarea>
 
         <div id="features-container">
           <div class="feature-input">
-            <input type="text" placeholder="Feature" class="input input-bordered w-full" required>
+            <label class="input input-bordered flex items-center gap-2">
+              <custom-svg src="{{ url_for('static', filename='img/dark/feature.svg') }}" class="w-6 h-6"></custom-svg>
+              <input type="text" class="grow" placeholder="Feature">
+            </label>
             <div class="label">
               <span class="label-text-alt"><button type="button" class="add-feature">Add</button></span>
               <span class="label-text-alt"><button type="button" class="delete-feature" disabled>Delete</button></span>
@@ -36,7 +39,7 @@ Like the goal, the problem and the solution" required></textarea>
         <!-- Hidden field to store the features -->
         <input type="hidden" name="features" id="features" value="">
 
-        <div class="divider">Feature Number</div>
+        <div class="divider">Features number</div>
 
         <input id="feature-number" name="feature-number" type="range" min="1" max="8" value="4" class="range" step="1">
         <div class="w-full flex justify-between text-xs px-3">
@@ -50,11 +53,10 @@ Like the goal, the problem and the solution" required></textarea>
           <span>8</span>
         </div>
 
-        <div class="tooltip" data-tip="Enter for shortcut-lovers ❤️">
-          <button type="submit" class="btn btn-primary mt-3 w-full">
-            Generate Feature Requests
-          </button>
-        </div>
+        <button type="submit" class="btn btn-primary mt-3 w-full">
+          <custom-svg src="{{ url_for('static', filename='img/light/rocket.svg') }}" class="w-6 h-6"></custom-svg>
+          Generate Feature Requests
+        </button>
       </form>
 
 
@@ -107,7 +109,10 @@ Like the goal, the problem and the solution" required></textarea>
         const newFeatureDiv = document.createElement('div');
         newFeatureDiv.classList.add('feature-input');
         newFeatureDiv.innerHTML = `
-          <input type="text" placeholder="Feature" class="input input-bordered w-full" required>
+          <label class="input input-bordered flex items-center gap-2">
+            <custom-svg src="{{ url_for('static', filename='img/dark/feature.svg') }}" class="w-6 h-6"></custom-svg>
+            <input type="text" class="grow" placeholder="Feature">
+          </label>
           <div class="label">
             <span class="label-text-alt"><button type="button" class="add-feature">Add</button></span>
             <span class="label-text-alt"><button type="button" class="delete-feature">Delete</button></span>

@@ -1,42 +1,33 @@
-import pyrebase
 from key_db import config
-
-import firebase_admin
-from firebase_admin import credentials, firestore
+import firebase
 
 
-firebase = pyrebase.initialize_app(config)
-auth = firebase.auth()
-
-cred = credentials.Certificate("key_db.json")
-firebase_admin.initialize_app(cred)
-database = firestore.client()
-users = database.collection("users")
+### FIREBASE-REST_API
+app = firebase.initialize_app(config)
+auth = app.auth()
+users = app.database()
 
 
+### PAYMENT
+def check_user_payment(uid):
+    print("\n\n\n[DB] check_user_payment\n[DB] uid: " + uid + "\n\n\n")
+    return users.child(uid).child("paid").get().val()
 
-### PAYMENT (firebase_admin)
-def check_user_payment(user_id):
-    print("\n\n\n[DB] check_user_payment\n[DB] user_id: " + user_id + "\n\n\n")
-    return users.document(user_id).get().to_dict()["paid"]
-
-def create_user(user_id, paid):
-    print("\n\n\n[DB] create_user\n[DB] user_id: " + user_id + "\n[DB] paid: " + str(paid) + "\n\n\n")
-    users.document(user_id).set({"paid": paid})
-
-def update_user(user_id, paid):
-    print("\n\n\n[DB] update_user\n[DB] user_id: " + user_id + "\n[DB] paid: " + str(paid) + "\n\n\n")
-    users.document(user_id).update({"paid": paid})
+def update_payment(uid, paid):
+    print("\n\n\n[DB] update_payment\n[DB] uid: " + uid + "\n[DB] paid: " + str(paid) + "\n\n\n")
+    users.child(uid).update({"paid": paid})
 
 
-### AUTH (pyrebase)
-def sign_up(email, password):
-    print("\n\n\n[DB] sign_up\n[DB] email: " + email + "\n[DB] password: " + password + "\n\n\n")
-    uid = auth.create_user_with_email_and_password(email, password)["localId"]
-    create_user(uid, False)
-    return uid
+### AUTH
+def decode_token(id_token):
+    print(auth.verify_id_token(id_token))
+    return auth.verify_id_token(id_token)
 
-
-def sign_in(email, password):
-    print("\n\n\n[DB] sign_in\n[DB] email: " + email + "\n[DB] password: " + password + "\n\n\n")
-    return auth.sign_in_with_email_and_password(email, password)["localId"]
+def delete_user(id_token):
+    uid = decode_token(id_token)["user_id"]
+    print("\n\n\n[DB] delete_user\n[DB] uid: " + uid + "\n\n\n")
+    auth.delete_user_account(id_token)
+    try:
+        users.child(uid).remove()
+    except:
+        pass

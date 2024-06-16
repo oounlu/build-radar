@@ -2,5 +2,7 @@ flask
 gunicorn
 g4f[all]
 stripe
-firebase_admin
-pyrebase
+firebase-rest-api
+firebase-admin
+urllib3
+json

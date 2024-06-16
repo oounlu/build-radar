@@ -4,6 +4,7 @@ import json
 import os
 import stripe
 import db
+from key_db import config
 
 
 
@@ -32,58 +33,21 @@ stripe.api_key = stripe_keys["secret_key"]
 
 
 
-
-
-
-
-
-
-
-
-### ROUTES
+### MAIN APP ROUTES
 @app.route("/")
 def landing():
     try:
-        return render_template("landing.html", signed_in=bool(session.get("uid")), payed=db.check_user_payment(session["uid"]))
-    except:
+        return render_template("landing.html", signed_in=session["uid"], payed=db.check_user_payment(session["uid"]))
+    except KeyError:
         return render_template("landing.html", signed_in=False, payed=False)
-
- 
-@app.route("/login", methods=["POST", "GET"])
-def login():
-    if request.method == "POST":
-        email = request.form.get("email")
-        password = request.form.get("password")
-        try:
-            uid = db.sign_in(email, password)
-            session["uid"] = uid
-            return redirect("/")
-        except:
-            return redirect("/login?error=true")
-
-    return render_template("login.html")
-
-
-@app.route("/signup", methods=["POST", "GET"])
-def signup():
-    if request.method == "POST":
-        email = request.form.get("email")
-        password = request.form.get("password")
-
-        try:
-            uid = db.sign_up(email, password)
-            session["uid"] = uid
-            return redirect("/")
-        except Exception as e:
-            print(e)
-            return redirect("/signup?error=true")
-
-    return render_template("signup.html")
 
 
 @app.route("/index", methods=["GET", "POST"])
 def generate():
-    has_paid = db.check_user_payment(session["uid"])
+    try:
+        has_paid = db.check_user_payment(session["uid"])
+    except:
+        has_paid = False
 
     if not has_paid:
         return redirect("/")
@@ -100,16 +64,54 @@ def generate():
     return render_template("index.html", success="true")
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### ACCOUNT ROUTES
+@app.route("/login", methods=["POST", "GET"])
+def login():
+    error = request.args.get("error")
+    if session.get("uid"):
+        return redirect("/")
+    return render_template("login.html", firebase_config=config, error=error)
+
+
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect("/")
 
 
+@app.route("/delete_account")
+def delete_account():
+    try:
+        db.delete_user(session["id_token"])
+    except:
+        session.clear()
+        return redirect("/login?error=credential_too_old")
+
+    session.clear()
+    return redirect("/")
 
 
-
-
+@app.route('/token-signin', methods=['POST'])
+def token_signin():
+    id_token = request.form['idToken']
+    decoded_token = db.decode_token(id_token)["user_id"]
+    session["uid"] = decoded_token
+    session["id_token"] = id_token
+    return redirect("/index")
 
 
 
@@ -185,7 +187,7 @@ def stripe_webhook():
     if event["type"] == "checkout.session.completed":
         session_with_user = event["data"]["object"]
         user_id = session_with_user.get("client_reference_id")
-        db.update_user(user_id, True)
+        db.update_payment(user_id, True)
 
     return "Success", 200
 

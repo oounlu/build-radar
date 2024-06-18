@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Generate - BuildRadar</title>
+</head>
+<body>
+
+
+  <div class="hero min-h-screen bg-base-200">
+    {% if output %}
+      <div class="hero-content flex-col lg:flex-row w-full w-4/4">
+    {% else %}
+      <div class="hero-content flex-col lg:flex-row w-full w-1/4">
+    {% endif %}
+        <form class="card-body rounded-xl shadow-2xl bg-base-100 w-full w-3/4" method="post">
+          <textarea id="description" name="description" class="textarea textarea-bordered w-full h-32" placeholder="Describe your project here
+Like the goal, the problem and the solution" required></textarea>
+          <div class="divider">Features</div>
+          <div id="features-container">
+            <div class="feature-input">
+              <label class="input input-bordered flex items-center gap-2">
+                <custom-svg src="{{ url_for('static', filename='img/dark/feature.svg') }}" class="w-6 h-6"></custom-svg>
+                <input type="text" class="grow" placeholder="Feature">
+              </label>
+              <div class="label">
+                <span class="label-text-alt"><button type="button" class="add-feature">Add</button></span>
+                <span class="label-text-alt"><button type="button" class="delete-feature" disabled>Delete</button></span>
+              </div>
+            </div>
+          </div>
+          <!-- Hidden field to store the features -->
+          <input type="hidden" name="features" id="features" value="">
+          <div class="divider">Features number</div>
+          <input id="feature-number" name="feature-number" type="range" min="1" max="10" value="" class="range" step="1">
+          <div class="w-full flex justify-between text-xs px-3">
+            <span>1</span>
+            <span>2</span>
+            <span>3</span>
+            <span>4</span>
+            <span>5</span>
+            <span>6</span>
+            <span>7</span>
+            <span>8</span>
+          </div>
+          <button type="submit" class="btn btn-primary mt-3 w-full">
+            <custom-svg src="{{ url_for('static', filename='img/light/rocket.svg') }}" class="w-6 h-6"></custom-svg>
+            Generate Feature Requests
+          </button>
+        </form>
+      {% if output %}
+        <div class="divider lg:divider-horizontal"></div>
+        <div class="card flex-none shadow-2xl bg-base-100 w-full max-w-[100vw] card-body mt-8 ">
+          <table class="table table-zebra" id="features-list">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Feature Name</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for i in output %}
+                <tr>
+                  <th>{{ loop.index }}</th>
+                  <td>{{ i.title }}</td>
+                  <td>{{ i.description }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const featuresContainer = document.getElementById('features-container');
+      const featuresInput = document.getElementById('features');
+      const form = document.querySelector('form');
+
+      // Function to update the hidden input field with the features
+      function updateFeaturesInput() {
+        const features = [];
+        document.querySelectorAll('.feature-input input').forEach(input => {
+          features.push(input.value);
+        });
+        featuresInput.value = JSON.stringify(features);
+      }
+
+      // Function to add a new feature input
+      function addFeatureInput() {
+        const newFeatureDiv = document.createElement('div');
+        newFeatureDiv.classList.add('feature-input');
+        newFeatureDiv.innerHTML = `
+          <label class="input input-bordered flex items-center gap-2">
+            <custom-svg src="{{ url_for('static', filename='img/dark/feature.svg') }}" class="w-6 h-6"></custom-svg>
+            <input type="text" class="grow" placeholder="Feature">
+          </label>
+          <div class="label">
+            <span class="label-text-alt"><button type="button" class="add-feature">Add</button></span>
+            <span class="label-text-alt"><button type="button" class="delete-feature">Delete</button></span>
+          </div>
+        `;
+        featuresContainer.appendChild(newFeatureDiv);
+        updateFeaturesInput();
+      }
+
+      // Function to delete a feature input
+      function deleteFeatureInput(event) {
+        const featureDiv = event.target.closest('.feature-input');
+        featuresContainer.removeChild(featureDiv);
+        updateFeaturesInput();
+      }
+
+      // Event delegation for add and delete buttons
+      featuresContainer.addEventListener('click', function(event) {
+        if (event.target.classList.contains('add-feature')) {
+          addFeatureInput();
+        } else if (event.target.classList.contains('delete-feature')) {
+          deleteFeatureInput(event);
+        }
+      });
+
+      // Update the hidden input field before the form is submitted
+      form.addEventListener('submit', function(event) {
+        updateFeaturesInput();
+      });
+
+      // Update the hidden input field when the page loads
+      updateFeaturesInput();
+    });
+  </script>
+</body>
+</html>
+{% endblock %}

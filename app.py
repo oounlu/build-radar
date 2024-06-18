@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, redirect, session
+from flask import Flask, request, jsonify, render_template, redirect, session, url_for
 from generate import generate_feature_request
 import json
 import os
@@ -13,7 +13,6 @@ app.config["SESSION_PERMANENT"] = True
 app.config["SESSION_TYPE"] = "filesystem"
 app.secret_key = "2689"
 
-DOMAIN_URL = os.environ["DOMAIN_URL"]
 
 
 
@@ -42,26 +41,23 @@ def landing():
         return render_template("landing.html", signed_in=False, payed=False)
 
 
-@app.route("/index", methods=["GET", "POST"])
+@app.route("/generate", methods=["GET", "POST"])
 def generate():
     try:
         has_paid = db.check_user_payment(session["uid"])
     except:
         has_paid = False
-
     if not has_paid:
         return redirect("/")
-
     success = request.args.get("success", "none")
-
     if request.method == "POST":
         description = request.form.get("description")
         features = json.dumps(request.form.get('features'))
-        output = generate_feature_request(description, features, request.form.get("feature-number"))
-
-        return render_template("index.html", output=output, success=success)
-
-    return render_template("index.html", success="true")
+        feature_number = request.form.get("feature-number")
+        print(description, features, feature_number)
+        output = generate_feature_request(description, features, feature_number)
+        return render_template("generate.html", output=output, success=success)
+    return render_template("generate.html", success="true")
 
 
 
@@ -100,7 +96,6 @@ def delete_account():
     except:
         session.clear()
         return redirect("/login?error=credential_too_old")
-
     session.clear()
     return redirect("/")
 
@@ -111,7 +106,7 @@ def token_signin():
     decoded_token = db.decode_token(id_token)["user_id"]
     session["uid"] = decoded_token
     session["id_token"] = id_token
-    return redirect("/index")
+    return redirect("/generate")
 
 
 
@@ -170,25 +165,21 @@ def create_checkout_session():
 def stripe_webhook():
     payload = request.get_data(as_text=True)
     sig_header = request.headers.get("Stripe-Signature")
-
     try:
         event = stripe.Webhook.construct_event(
             payload, sig_header, stripe_keys["endpoint_secret"]
         )
-
     except ValueError as e:
         # Invalid payload
         return "Invalid payload", 400
     except stripe.error.SignatureVerificationError as e:
         # Invalid signature
         return "Invalid signature", 400
-
     # Handle the checkout.session.completed event
     if event["type"] == "checkout.session.completed":
         session_with_user = event["data"]["object"]
         user_id = session_with_user.get("client_reference_id")
         db.update_payment(user_id, True)
-
     return "Success", 200
 
 

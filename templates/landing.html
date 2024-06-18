@@ -20,7 +20,7 @@
         <p class="py-8">Ever wanted to get feature requests and feedbacks before you ship?</p>
 
         {% if signed_in and payed %}
-          <a role="button" class="btn btn-primary" href="/index">
+          <a role="button" class="btn btn-primary" href="/generate">
             <custom-svg src="{{ url_for('static', filename='img/light/fire.svg') }}" class="w-6 h-6"></custom-svg>
             Lucky you! Now you can.
           </a>
@@ -32,10 +32,13 @@
         {% endif %}
 
         {% if signed_in and not payed %}
-          <button class="btn btn-secondary" id="payBtn">
-            <custom-svg src="{{ url_for('static', filename='img/light/pay.svg') }}" class="w-6 h-6"></custom-svg>
-            Purchase!
-          </button>
+          <div class="indicator">
+            <span class="indicator-item badge badge-warning">SO CHEAP!</span>
+            <button class="btn btn-secondary" id="payBtn">
+              <custom-svg src="{{ url_for('static', filename='img/light/pay.svg') }}" class="w-6 h-6"></custom-svg>
+              Purchase!
+            </button>
+          </div>
         {% endif %}
 
       </div>

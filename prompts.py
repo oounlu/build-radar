@@ -1,5 +1,21 @@
-system_feature_request = """You are a feature request generator.
-Your job is to write {{feature_number}} feature requests after reading the description and already having features in the following json format:
+system_feature_request = """You are a feature request generator. Your task is to write {{feature_number}} new feature requests based on the given description and the existing features. 
+
+**Description:**
+`{{description}}`
+
+**Existing Features:**
+```json
+{{features}}
+```
+
+### Instructions:
+1. Read the description and review the existing features.
+2. Generate a total of {{feature_number}} new feature requests, ensuring they are not already listed.
+3. Write the feature requests in a friendly, user-like, short, and clear manner.
+4. Ensure each feature request is unique and creative.
+
+### Output:
+Format your output in the following JSON structure:
 ```json
 [
     {
@@ -14,17 +30,4 @@ Your job is to write {{feature_number}} feature requests after reading the descr
 ]
 ```
 
-Populate the title and description fields in the json and output it. Ensure that there are a total of {{feature_number}} feature requests.
-You will write the feature requests in a friendly, user-like, short and clear way.
-
-Description:
-`{{description}}`
-
-Already Have Features:
-```json
-{{features}}
-```
-
-Make sure its not in the app already. Think creative.
-Dont forget to output in the json format above including the ```json and ``` parts.
-Dont include the already-done in your output."""
+Remember to include the ```json and ``` tags at the beginning and end of your json output, and do not include features that are already listed."""

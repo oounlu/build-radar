@@ -34,7 +34,7 @@ Like the goal, the problem and the solution" required></textarea>
           <!-- Hidden field to store the features -->
           <input type="hidden" name="features" id="features" value="">
           <div class="divider">Features number</div>
-          <input id="feature-number" name="feature-number" type="range" min="1" max="10" value="" class="range" step="1">
+          <input id="feature-number" name="feature-number" type="range" min="1" max="10" value="5" class="range" step="1">
           <div class="w-full flex justify-between text-xs px-3">
             <span>1</span>
             <span>2</span>
@@ -44,6 +44,8 @@ Like the goal, the problem and the solution" required></textarea>
             <span>6</span>
             <span>7</span>
             <span>8</span>
+            <span>9</span>
+            <span>10</span>
           </div>
           <button type="submit" class="btn btn-primary mt-3 w-full">
             <custom-svg src="{{ url_for('static', filename='img/light/rocket.svg') }}" class="w-6 h-6"></custom-svg>
@@ -52,29 +54,39 @@ Like the goal, the problem and the solution" required></textarea>
         </form>
       {% if output %}
         <div class="divider lg:divider-horizontal"></div>
-        <div class="card flex-none shadow-2xl bg-base-100 w-full max-w-[100vw] card-body mt-8 ">
-          <table class="table table-zebra" id="features-list">
-            <thead>
-              <tr>
-                <th></th>
-                <th>Feature Name</th>
-                <th>Description</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for i in output %}
-                <tr>
-                  <th>{{ loop.index }}</th>
-                  <td>{{ i.title }}</td>
-                  <td>{{ i.description }}</td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
+
+        <div class="card flex-none shadow-2xl bg-base-100 w-full max-w-[100vw] card-body mt-8" id="features-list">
+          {% for i in output %}
+            <div class="card w-full flex max-w-[600px] bg-base-200 h-20 justify-center">
+              <div class="card-body">
+                <div class="flex items-between">
+                  <button class="btn btn-outline border-base-300 btn-square">{{ i.upvotes }}</button>
+                  <div class="divider divider-horizontal"></div>
+                  <p class="mr-2">{{ i.feature }}</p>
+                  <button class="btn btn-ghost btn-square ml-2">
+                    <custom-svg src="{{ url_for('static', filename='img/dark/regenerate.svg') }}" class="w-5 h-5"></custom-svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>        
       {% endif %}
     </div>
   </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
   <script>

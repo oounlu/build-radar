@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, redirect, session, url_for
+from flask import Flask, request, jsonify, render_template, redirect, session, url_for, send_from_directory
 from generate import generate_feature_request
 import json
 import os
@@ -11,7 +11,7 @@ from key_db import config
 app = Flask(__name__)
 app.config["SESSION_PERMANENT"] = True
 app.config["SESSION_TYPE"] = "filesystem"
-app.secret_key = "2689"
+app.secret_key = os.environ["FLASK_SECRET_KEY"]
 
 
 
@@ -44,21 +44,19 @@ def landing():
 @app.route("/generate", methods=["GET", "POST"])
 def generate():
     try:
-        has_paid = db.check_user_payment(session["uid"])
+        if db.check_user_payment(session["uid"]) == None:
+            return redirect("/")
     except:
-        has_paid = False
-    if not has_paid:
         return redirect("/")
-    success = request.args.get("success", "none")
+
     if request.method == "POST":
         description = request.form.get("description")
-        features = json.dumps(request.form.get('features'))
+        features = json.dumps(request.form.get("features"))
         feature_number = request.form.get("feature-number")
         print(description, features, feature_number)
         output = generate_feature_request(description, features, feature_number)
-        return render_template("generate.html", output=output, success=success)
-    return render_template("generate.html", success="true")
-
+        return render_template("generate.html", output=output)
+    return render_template("generate.html")
 
 
 
@@ -100,9 +98,9 @@ def delete_account():
     return redirect("/")
 
 
-@app.route('/token-signin', methods=['POST'])
+@app.route("/token-signin", methods=["POST"])
 def token_signin():
-    id_token = request.form['idToken']
+    id_token = request.form["idToken"]
     decoded_token = db.decode_token(id_token)["user_id"]
     session["uid"] = decoded_token
     session["id_token"] = id_token

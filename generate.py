@@ -1,21 +1,28 @@
-from g4f.client import Client
+from gradio_client import Client
 from prompts import system_feature_request
 import json
-import g4f
+import random
 
-client = Client()
+client = Client("Qwen/Qwen2-72B-Instruct")
 
 
 def generate_feature_request(description, features, feature_number):
-    for _ in range(8):
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": system_feature_request.replace("{{description}}", description).replace("{{feature_number}}", feature_number).replace("{{features}}", features)}],
-        )
-        try:
-            output = response.choices[0].message.content.split("```json")[1].split("```")[0].strip()
-            output = json.loads(output)
-            return output
-        except:
-            print(f"Try #{_} failed")
-            continue
+    response = client.predict(
+        api_name="/model_chat",
+        query=system_feature_request.replace("{{description}}", description).replace("{{feature_number}}", feature_number).replace("{{features}}", features),
+    )[1][0][-1]
+    try:
+        output = response.replace("```json", "```").replace("```\njson", "```")
+        output = output.split("```")[1].split("```")[0].strip()
+        output = json.loads(output)
+
+        upvotes = random.sample(range(1, 50), len(output))
+        sorted_upvotes = sorted(upvotes, reverse=True)
+
+        for index, feature in enumerate(output):
+            feature.update({"upvotes": sorted_upvotes[index]})
+
+        return output
+    except:
+        print(response)
+        return []

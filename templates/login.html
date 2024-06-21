@@ -4,11 +4,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-
-
   <title>Login - BuildRadar</title>
-
-
   <script>
     var firebaseConfig = {
       apiKey: "{{ firebase_config['apiKey'] }}",
@@ -23,6 +19,7 @@
   <script src="{{ url_for('static', filename='js/login.js') }}"></script>
 </head>
 <body>
+
 
   {% if error == "credential_too_old" %}
     <div class="toast">
